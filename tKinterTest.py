@@ -103,14 +103,13 @@ def display_stock_graph(root):
     fig = Figure(figsize=(5, 4), dpi=100)
     ax = fig.add_subplot(111)
 
-    print(data)
     # Plot the data as a line graph
     ax.plot(data)
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+    canvas.get_tk_widget().place(x=0, y=450)
 
 
 # BEGIN TKINTER BUILD
@@ -147,6 +146,6 @@ quit_button.place(x=1490, y=0)
 
 # Graph button
 graph_button = tk.Button(root, text='Graph')
-graph_button.place(x=10, y=450)
+graph_button.place(x=10, y=425)
 
 root.mainloop()
