@@ -107,7 +107,7 @@ def display_stock_graph():
     plot_data = [tick.get_open_price(), tick.get_daily_low(), tick.get_daily_high(), tick.get_current_price()]
 
     # Create a figure and add a subplot
-    fig = Figure(figsize=(5, 4), dpi=100)
+    fig = Figure(figsize=(16, 4), dpi=100)
     ax = fig.add_subplot(111)
 
     # Plot the data as a line graph
