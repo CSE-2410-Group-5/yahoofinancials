@@ -139,7 +139,7 @@ currency_drop.config(height=2, width=10)
 currency_drop.pack(side='left', anchor='nw')
 
 search_bar_go_button = tk.Button(root, text='GO', command=lambda: test_button(), height=2, width=5)
-search_bar_go_button.place(x='677', y=0)
+search_bar_go_button.place(x='677', y=3)
 
 quit_button = tk.Button(root, text='Quit', command=root.quit, height=2, width=5)
 quit_button.place(x=1480, y=0)
