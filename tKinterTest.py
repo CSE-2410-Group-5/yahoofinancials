@@ -96,11 +96,13 @@ currency_options = [
     "EUR"
 ]
 
+stock_data = [
 
+]
 
 root = tk.Tk()
 root.title("test")
-root.geometry("700x350")
+root.geometry("2000x900")
 
 first_label = tk.Label(root, text='Enter ticker here: ')
 first_label.pack(side='left', anchor='nw')
@@ -116,14 +118,14 @@ currency_drop.config(width=6)
 currency_drop.pack(side='left', anchor='nw')
 
 search_bar_go_button = tk.Button(root, text='GO', command=lambda:test_button(), height = 1, width = 5)
-search_bar_go_button.place(x = '300', y = 0)
+search_bar_go_button.place(x='300', y=0)
 
 quit_button = tk.Button(root, text='Quit', command=root.quit)
-quit_button.place(x = 1490, y = 0)
+quit_button.place(x=1490, y=0)
 
 # Graph button
 graph_button = tk.Button(root, text='Graph')
-graph_button.place(x=10, y=300)
+graph_button.place(x=10, y=450)
 
 root.mainloop()
 
