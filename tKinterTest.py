@@ -2,7 +2,8 @@ import tkinter as tk
 import sys
 import time
 from yahoofinancials import YahooFinancials as YF
-
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 DEFAULT_ARGS = ('DOGE-JPY')
 MODULE_ARGS = ('yf', 'yahoofinancial', 'yahoofinancials')
@@ -10,10 +11,16 @@ HELP_ARGS = ('-h', '--help')
 OUTPUT = ''
 mark = '-' * 64
 
+data = []
+
 
 def default_api(ticker):
     global OUTPUT
+    global data
     tick = YF(ticker)
+
+    data = [tick.get_open_price(), tick.get_daily_low(), tick.get_daily_high(), tick.get_current_price()]
+
     OUTPUT += str(tick.get_summary_data()) + '\n'
     OUTPUT += mark + '\n'
     OUTPUT += str(tick.get_stock_quote_type_data()) + '\n'
@@ -23,6 +30,9 @@ def default_api(ticker):
     OUTPUT += str(tick.get_current_price()) + '\n'
     OUTPUT += mark + '\n'
     OUTPUT += str(tick.get_dividend_rate()) + '\n'
+
+    display_stock_graph(root)
+
     try:
         r = tick._cache.keys()
     except AttributeError:
@@ -30,6 +40,7 @@ def default_api(ticker):
     else:
         OUTPUT += mark + '\n'
         OUTPUT += str(r) + '\n'
+
 
 def custom_api(queries, ts):
     global OUTPUT
@@ -66,7 +77,7 @@ def test_button():
     global DEFAULT_ARGS
     global OUTPUT
     DEFAULT_ARGS = (first_entry.get())
-    
+
     api = set(s for s in dir(YF) if s.startswith('get_'))
     api.update(MODULE_ARGS)
     api.update(HELP_ARGS)
@@ -87,6 +98,21 @@ def test_button():
     OUTPUT = ''
 
 
+def display_stock_graph(root):
+    # Create a figure and add a subplot
+    fig = Figure(figsize=(5, 4), dpi=100)
+    ax = fig.add_subplot(111)
+
+    print(data)
+    # Plot the data as a line graph
+    ax.plot(data)
+
+    # Create a canvas to display the graph in Tkinter
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+
 # BEGIN TKINTER BUILD
 
 # Holds data for drop down menus
@@ -94,10 +120,6 @@ currency_options = [
     "USD",
     "CAN",
     "EUR"
-]
-
-stock_data = [
-
 ]
 
 root = tk.Tk()
@@ -117,7 +139,7 @@ currency_drop = tk.OptionMenu(root, clicked, *currency_options)
 currency_drop.config(width=6)
 currency_drop.pack(side='left', anchor='nw')
 
-search_bar_go_button = tk.Button(root, text='GO', command=lambda:test_button(), height = 1, width = 5)
+search_bar_go_button = tk.Button(root, text='GO', command=lambda: test_button(), height=1, width=5)
 search_bar_go_button.place(x='300', y=0)
 
 quit_button = tk.Button(root, text='Quit', command=root.quit)
@@ -128,4 +150,3 @@ graph_button = tk.Button(root, text='Graph')
 graph_button.place(x=10, y=450)
 
 root.mainloop()
-
