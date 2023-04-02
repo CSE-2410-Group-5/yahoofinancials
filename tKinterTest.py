@@ -87,6 +87,17 @@ def test_button():
     OUTPUT = ''
 
 
+# BEGIN TKINTER BUILD
+
+# Holds data for drop down menus
+currency_options = [
+    "USD",
+    "CAN",
+    "EUR"
+]
+
+
+
 root = tk.Tk()
 root.title("test")
 root.geometry("700x350")
@@ -97,7 +108,21 @@ first_label.pack(side='left', anchor='nw')
 first_entry = tk.Entry(root)
 first_entry.pack(side='left', anchor='nw')
 
-button = tk.Button(root, text='GO', command=lambda:test_button())
-button.pack(side='left', anchor='nw')
+# Create Dropdown menu for currency type
+clicked = tk.StringVar()  # datatype of menu text
+clicked.set("$")  # initial menu text
+currency_drop = tk.OptionMenu(root, clicked, *currency_options)
+currency_drop.config(width=6)
+currency_drop.pack(side='left', anchor='nw')
+
+search_bar_go_button = tk.Button(root, text='GO', command=lambda:test_button(), height = 1, width = 5)
+search_bar_go_button.place(x = '300', y = 0)
+
+quit_button = tk.Button(root, text='Quit', command=root.quit)
+quit_button.place(x = 1490, y = 0)
+
+# Graph button
+graph_button = tk.Button(root, text='Graph')
+graph_button.place(x=10, y=300)
 
 root.mainloop()
