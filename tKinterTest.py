@@ -19,6 +19,7 @@ def default_api(ticker):
     tick = YF(ticker)
 
     OUTPUT += str(tick.get_summary_data()) + '\n'
+    '''
     OUTPUT += mark + '\n'
     OUTPUT += str(tick.get_stock_quote_type_data()) + '\n'
     OUTPUT += mark + '\n'
@@ -27,7 +28,7 @@ def default_api(ticker):
     OUTPUT += str(tick.get_current_price()) + '\n'
     OUTPUT += mark + '\n'
     OUTPUT += str(tick.get_dividend_rate()) + '\n'
-
+    '''
     try:
         r = tick._cache.keys()
     except AttributeError:
@@ -108,14 +109,40 @@ def display_stock_graph():
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=390)
 
+# Function to toggle the visibility of the listbox when the entry widget is clicked
+def toggle_dropdown(event):
+    global dropdown_visible
+    if dropdown_visible:
+        listbox.pack_forget()  # Hide the listbox
+        dropdown_visible = False
+    else:
+        listbox.pack()  # Show the listbox
+        dropdown_visible = True
+
+# Function to update the selected options when the user makes a selection
+def update_selection():
+    global selected_options
+    # Get the selected items from the listbox
+    selected_options = [listbox.get(idx) for idx in listbox.curselection()]
+    # Update the text displayed in the entry widget to show the selected options
+    dropdown_entry_var.set(", ".join(selected_options))
+
+# Initialize the list of selected options to an empty list
+selected_options = []
 
 # BEGIN TKINTER BUILD
 
 # Holds data for drop down menus
 currency_options = [
     "USD",
-    "CAN",
+    "CAD",
     "EUR"
+]
+
+additional_info = [
+    "Dividend Yield",
+    "Dividend Date",
+    "Split History"
 ]
 
 root = tk.Tk()
@@ -126,26 +153,54 @@ root.geometry("2000x900")
 first_label = tk.Label(root, text='Enter ticker here: ', font=('Times', 22))
 first_label.pack(side='left', anchor='nw')
 
+# Search Bar
 first_entry = tk.Entry(root, font=('Times', 26))
 first_entry.pack(side='left', anchor='nw')
 
 # Create Dropdown menu for currency type
-clicked = tk.StringVar()  # datatype of menu text
-clicked.set("$")  # initial menu text
-currency_drop = tk.OptionMenu(root, clicked, *currency_options)
+curr_button = tk.StringVar()  # datatype of menu text
+curr_button.set(currency_options[0])  # initial menu text
+currency_drop = tk.OptionMenu(root, curr_button, *currency_options)
 currency_drop.config(height=2, width=10)
 currency_drop.pack(side='left', anchor='nw')
 
+# Go button for search bar
 search_bar_go_button = tk.Button(root, text='GO', command=lambda: test_button(), height=2, width=5)
 search_bar_go_button.place(x='677', y=3)
 
-stock_data_label = tk.Label(root, text='test ', font=('Times', 22))
-stock_data_label.place()
+# Additional information text
+stock_data_label = tk.Label(root, text='Additional Information: ', font=('Times', 22))
+stock_data_label.place(x=775, y=0)
 
 
+# Additional Information Dropdown menu
+# Create a frame to hold the dropdown widget
+dropdown_frame = tk.Frame(root)
+dropdown_frame.place(x=1075, y=0)
+# Create an entry widget to display the selected options
+dropdown_entry_var = tk.StringVar()
+dropdown_entry_var.set("Select options...")
+dropdown_entry = tk.Entry(dropdown_frame, textvariable=dropdown_entry_var, width=40)
+dropdown_entry.pack()
+
+# Create a listbox widget to display the options when the dropdown is opened
+dropdown_visible = False
+listbox = tk.Listbox(dropdown_frame, selectmode=tk.MULTIPLE)
+for option in additional_info:
+    listbox.insert(tk.END, option)
+listbox.pack_forget()
+
+# Bind events to the entry and listbox widgets to handle the dropdown behavior
+dropdown_entry.bind("<Button-1>", toggle_dropdown)
+listbox.bind("<FocusOut>", lambda event: dropdown_entry.focus())
+listbox.bind("<Button-1>", lambda event: dropdown_entry.focus())
+listbox.bind("<ButtonRelease-1>", lambda event: update_selection())
+
+search_bar_go_button = tk.Button(root, text='GO', height=2, width=5)
+search_bar_go_button.place(x='1320', y=3)
 
 
-
+# Quit Button
 quit_button = tk.Button(root, text='Quit', command=root.quit, height=2, width=5)
 quit_button.place(x=1480, y=0)
 
