@@ -4,6 +4,7 @@ import time
 from yahoofinancials import YahooFinancials as YF
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import yfinance
 
 DEFAULT_ARGS = ('DOGE-JPY')
 MODULE_ARGS = ('yf', 'yahoofinancial', 'yahoofinancials')
@@ -74,25 +75,33 @@ def test_button():
     global OUTPUT
     DEFAULT_ARGS = (first_entry.get())
 
-    api = set(s for s in dir(YF) if s.startswith('get_'))
-    api.update(MODULE_ARGS)
-    api.update(HELP_ARGS)
-    ts = sys.argv[1:]
-    queries = [q for q in ts if q in api]
-    ts = [t for t in ts if not t in queries] or DEFAULT_ARGS
-    if [h for h in HELP_ARGS if h in queries]:
-        help_api(queries)
-    elif queries:
-        custom_api(queries, ts)
-    else:
-        timeit(default_api, ts[0] if 1 == len(ts) else ts)
+    if (is_valid_ticker(DEFAULT_ARGS)):
+        api = set(s for s in dir(YF) if s.startswith('get_'))
+        api.update(MODULE_ARGS)
+        api.update(HELP_ARGS)
+        ts = sys.argv[1:]
+        queries = [q for q in ts if q in api]
+        ts = [t for t in ts if not t in queries] or DEFAULT_ARGS
+        if [h for h in HELP_ARGS if h in queries]:
+            help_api(queries)
+        elif queries:
+            custom_api(queries, ts)
+        else:
+            timeit(default_api, ts[0] if 1 == len(ts) else ts)
 
-    text = tk.Text(root, wrap='word')
-    text.insert('insert', OUTPUT)
-    text.place(x=1, y=46, width= 722, height= 300)
-    root.update()
-    OUTPUT = ''
+        text = tk.Text(root, wrap='word')
+        text.insert('insert', OUTPUT)
+        text.place(x=1, y=46, width=710, height=300)
+        root.update()
+        OUTPUT = ''
 
+def is_valid_ticker(symbol):
+    try:
+        ticker = yfinance.Ticker(symbol)
+        info = ticker.info['regularMarketPrice']
+        return True
+    except:
+        return False
 
 def display_stock_graph():
     plot_data = [tick.get_open_price(), tick.get_daily_low(), tick.get_daily_high(), tick.get_current_price()]
