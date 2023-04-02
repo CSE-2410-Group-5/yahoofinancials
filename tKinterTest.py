@@ -113,19 +113,19 @@ def display_stock_graph():
 def toggle_dropdown(event):
     global dropdown_visible
     if dropdown_visible:
-        listbox.pack_forget()  # Hide the listbox
+        listbox.pack_forget()
         dropdown_visible = False
     else:
-        listbox.pack()  # Show the listbox
+        listbox.pack()
         dropdown_visible = True
 
 # Function to update the selected options when the user makes a selection
 def update_selection():
-    global selected_options
-    # Get the selected items from the listbox
+    global selected_options, dropdown_visible
     selected_options = [listbox.get(idx) for idx in listbox.curselection()]
-    # Update the text displayed in the entry widget to show the selected options
     dropdown_entry_var.set(", ".join(selected_options))
+    dropdown_visible = False
+    listbox.pack_forget()
 
 # Initialize the list of selected options to an empty list
 selected_options = []
@@ -194,9 +194,9 @@ listbox.pack_forget()
 dropdown_entry.bind("<Button-1>", toggle_dropdown)
 listbox.bind("<FocusOut>", lambda event: dropdown_entry.focus())
 listbox.bind("<Button-1>", lambda event: dropdown_entry.focus())
-listbox.bind("<ButtonRelease-1>", lambda event: update_selection())
+listbox.bind("<ButtonRelease-1>", lambda event: update_selection)
 
-search_bar_go_button = tk.Button(root, text='GO', height=2, width=5)
+search_bar_go_button = tk.Button(root, text='GO', command=update_selection, height=2, width=5)
 search_bar_go_button.place(x='1320', y=3)
 
 
