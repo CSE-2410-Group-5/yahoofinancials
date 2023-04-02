@@ -126,3 +126,4 @@ graph_button = tk.Button(root, text='Graph')
 graph_button.place(x=10, y=300)
 
 root.mainloop()
+
