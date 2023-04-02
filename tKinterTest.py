@@ -2,6 +2,8 @@ import tkinter as tk
 import sys
 import time
 from yahoofinancials import YahooFinancials as YF
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 
 DEFAULT_ARGS = ('DOGE-JPY')
@@ -10,10 +12,15 @@ HELP_ARGS = ('-h', '--help')
 OUTPUT = ''
 mark = '-' * 64
 
+data = []
 
 def default_api(ticker):
     global OUTPUT
+    global data
     tick = YF(ticker)
+
+    data = [tick.get_open_price(), tick.get_daily_low(), tick.get_daily_high(), tick.get_current_price()]
+    
     OUTPUT += str(tick.get_summary_data()) + '\n'
     OUTPUT += mark + '\n'
     OUTPUT += str(tick.get_stock_quote_type_data()) + '\n'
@@ -23,6 +30,9 @@ def default_api(ticker):
     OUTPUT += str(tick.get_current_price()) + '\n'
     OUTPUT += mark + '\n'
     OUTPUT += str(tick.get_dividend_rate()) + '\n'
+
+    display_stock_graph(root)
+
     try:
         r = tick._cache.keys()
     except AttributeError:
@@ -85,6 +95,22 @@ def test_button():
     text.place(x=1, y=30)
     root.update()
     OUTPUT = ''
+
+
+def display_stock_graph(root):
+
+    # Create a figure and add a subplot
+    fig = Figure(figsize=(5, 4), dpi=100)
+    ax = fig.add_subplot(111)
+
+    print(data)
+    # Plot the data as a line graph
+    ax.plot(data)
+
+    # Create a canvas to display the graph in Tkinter
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
 
 # BEGIN TKINTER BUILD
