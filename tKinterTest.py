@@ -11,15 +11,12 @@ HELP_ARGS = ('-h', '--help')
 OUTPUT = ''
 mark = '-' * 64
 
-data = []
-
+tick = None
 
 def default_api(ticker):
     global OUTPUT
-    global data
+    global tick
     tick = YF(ticker)
-
-    data = [tick.get_open_price(), tick.get_daily_low(), tick.get_daily_high(), tick.get_current_price()]
 
     OUTPUT += str(tick.get_summary_data()) + '\n'
     OUTPUT += mark + '\n'
@@ -30,8 +27,6 @@ def default_api(ticker):
     OUTPUT += str(tick.get_current_price()) + '\n'
     OUTPUT += mark + '\n'
     OUTPUT += str(tick.get_dividend_rate()) + '\n'
-
-    display_stock_graph(root)
 
     try:
         r = tick._cache.keys()
@@ -93,23 +88,25 @@ def test_button():
 
     text = tk.Text(root, wrap='word')
     text.insert('insert', OUTPUT)
-    text.place(x=1, y=30)
+    text.place(x=1, y=46, width= 722, height= 300)
     root.update()
     OUTPUT = ''
 
 
-def display_stock_graph(root):
+def display_stock_graph():
+    plot_data = [tick.get_open_price(), tick.get_daily_low(), tick.get_daily_high(), tick.get_current_price()]
+
     # Create a figure and add a subplot
     fig = Figure(figsize=(5, 4), dpi=100)
     ax = fig.add_subplot(111)
 
     # Plot the data as a line graph
-    ax.plot(data)
+    ax.plot(plot_data)
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    canvas.get_tk_widget().place(x=0, y=450)
+    canvas.get_tk_widget().place(x=0, y=390)
 
 
 # BEGIN TKINTER BUILD
@@ -125,6 +122,7 @@ root = tk.Tk()
 root.title("test")
 root.geometry("2000x900")
 
+# Search bar text
 first_label = tk.Label(root, text='Enter ticker here: ', font=('Times', 22))
 first_label.pack(side='left', anchor='nw')
 
@@ -141,11 +139,18 @@ currency_drop.pack(side='left', anchor='nw')
 search_bar_go_button = tk.Button(root, text='GO', command=lambda: test_button(), height=2, width=5)
 search_bar_go_button.place(x='677', y=3)
 
+stock_data_label = tk.Label(root, text='test ', font=('Times', 22))
+stock_data_label.place()
+
+
+
+
+
 quit_button = tk.Button(root, text='Quit', command=root.quit, height=2, width=5)
 quit_button.place(x=1480, y=0)
 
 # Graph button
-graph_button = tk.Button(root, text='Graph')
-graph_button.place(x=10, y=425)
+graph_button = tk.Button(root, text='Graph', command=lambda: display_stock_graph(), height=2, width=5)
+graph_button.place(x=10, y=348)
 
 root.mainloop()
