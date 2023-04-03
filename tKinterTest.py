@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import yfinance
 
-DEFAULT_ARGS = ('DOGE-JPY')
+DEFAULT_ARGS = 'DOGE-JPY'
 MODULE_ARGS = ('yf', 'yahoofinancial', 'yahoofinancials')
 HELP_ARGS = ('-h', '--help')
 OUTPUT = ''
@@ -89,11 +89,11 @@ def test_button():
     global DEFAULT_ARGS
     DEFAULT_ARGS = (first_entry.get())
 
-    if (is_valid_ticker(DEFAULT_ARGS)):
+    if is_valid_ticker(DEFAULT_ARGS):
         setup()
     else:
         DEFAULT_ARGS += '-' + clicked.get()
-        if (is_valid_ticker(DEFAULT_ARGS)):
+        if is_valid_ticker(DEFAULT_ARGS):
             setup()
         else:
             tk.messagebox.showinfo('Invalid Ticker', 'The option you entered is not a valid ticker. Please try again.')
