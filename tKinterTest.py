@@ -316,3 +316,4 @@ graph_button = tk.Button(root, text='Graph', command=lambda: display_stock_graph
 graph_button.place(x=1, y=348)
 
 root.mainloop()
+
