@@ -1,6 +1,0 @@
-yahoofinancials~=1.14
-setuptools~=65.5.1
-yfinance~=0.2.14
-matplotlib~=3.7.1
-pytz~=2023.3
-requests~=2.28.2

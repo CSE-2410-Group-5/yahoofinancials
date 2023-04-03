@@ -23,12 +23,12 @@ def default_api(ticker):
 
     tick = YF(ticker)
 
-    OUTPUT += '{:25s}{:,f}\n'.format('Current Price: ', tick.get_current_price())
-    OUTPUT += '{:22s}{:,f}\n'.format('Current Volume: ', tick.get_current_volume())
-    OUTPUT += '{:23s}{:,f}\n'.format('Prev Close Price: ', tick.get_prev_close_price())
-    OUTPUT += '{:26s}{:,f}\n'.format('Open Price: ', tick.get_open_price())
-    OUTPUT += '{:26s}{:,f}\n'.format('Daily Low: ', tick.get_daily_low())
-    OUTPUT += '{:27s}{:,f}\n'.format('Daily High: ', tick.get_daily_high())
+    OUTPUT += '{:25s}{:,.2f}\n'.format('Current Price: ', tick.get_current_price())
+    OUTPUT += '{:22s}{:,.2f}\n'.format('Current Volume: ', tick.get_current_volume())
+    OUTPUT += '{:23s}{:,.2f}\n'.format('Prev Close Price: ', tick.get_prev_close_price())
+    OUTPUT += '{:26s}{:,.2f}\n'.format('Open Price: ', tick.get_open_price())
+    OUTPUT += '{:26s}{:,.2f}\n'.format('Daily Low: ', tick.get_daily_low())
+    OUTPUT += '{:27s}{:,.2f}\n'.format('Daily High: ', tick.get_daily_high())
 
     try:
         r = tick._cache.keys()
@@ -127,7 +127,7 @@ def display_stock_graph():
         stock_prices.append(price)
 
     # Create a figure and add a subplot
-    fig = Figure(figsize=(16, 3.95), dpi=100)
+    fig = Figure(figsize=(16, 4), dpi=100)
     grap = fig.add_subplot(111)
 
     # Plot the data as a line graph
@@ -228,17 +228,6 @@ def update_selection():
     root.update()
 
 
-# Checks which choices have been chosen in the
-# additional information drop down menu and
-# returns the string to be printed to the screen
-# Loops through chosen information
-# Checks for each option in dropdown, calls appropriate
-# methods and adds appropriate text for each selection
-
-
-
-
-
 # Holds data for drop down menus
 currency_options = [
     "USD",
@@ -253,7 +242,6 @@ additional_info = [
     "Yearly Low",
     "Annual Average Dividend Yield",
     "5 Year Average Dividend Yield",
-
 ]
 
 # BEGIN TKINTER BUILD
@@ -316,4 +304,3 @@ graph_button = tk.Button(root, text='Graph', command=lambda: display_stock_graph
 graph_button.place(x=1, y=348)
 
 root.mainloop()
-
