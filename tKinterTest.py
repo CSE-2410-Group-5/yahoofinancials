@@ -5,6 +5,7 @@ from yahoofinancials import YahooFinancials as YF
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import yfinance
+from datetime import datetime, timedelta
 
 
 DEFAULT_ARGS = ('DOGE-JPY')
@@ -99,19 +100,46 @@ def test_button():
 
 
 def display_stock_graph():
-    data = [tick.get_open_price(), tick.get_daily_low(), tick.get_daily_high(), tick.get_current_price()]
+    ticker_data = yfinance.Ticker(DEFAULT_ARGS)
+
+    # creates the boundary to extract data from
+    current_day = datetime.now().strftime('%Y-%m-%d')
+    tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+    current_day_data = ticker_data.history(start=current_day, end=tomorrow, interval='1m')
+    
+    # shows data in intervals of 30 minutes
+    hours_data_30 = current_day_data.between_time('09:00:00', '16:00:00').resample('30T').last()
+
+    # Create empty lists to store the time and price
+    stock_times = []
+    stock_prices = []
+
+    # puts the items in their list
+    for hour, price in zip(hours_data_30.index, hours_data_30['Close']):
+        time = hour.strftime('%I:%M %p')
+        stock_times.append(time)
+        stock_prices.append(price)
 
     # Create a figure and add a subplot
-    fig = Figure(figsize=(5, 4), dpi=100)
+    fig = Figure(figsize=(16, 3.95), dpi=100)
     ax = fig.add_subplot(111)
 
     # Plot the data as a line graph
-    ax.plot(data)
+    ax.plot(stock_times, stock_prices)
+
+    # gets the current day
+    fin_current_day = datetime.now().strftime('(%m-%d)')
+
+    # Labels the graph
+    _title = DEFAULT_ARGS + "'s Daily Prices " + fin_current_day
+    ax.set_title(_title)
+    ax.set_xlabel("Time(AM-PM)")
+    ax.set_ylabel("Stock Price($)")
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    canvas.get_tk_widget().place(x=0, y=390)
+    canvas.get_tk_widget().place(x=1, y=390)
 
 
 def is_valid_ticker(symbol):
@@ -140,24 +168,48 @@ def update_selection():
     dropdown_visible = False
     listbox.pack_forget()
 
-    additional_text = ''
+    text = ''
 
-    for i in selected_options:
-        if(i == 'Dividend Yield'):
+    for selected in selected_options:
+        if selected == 'Dividend Yield':
             temp = tick.get_dividend_yield()
-            if(temp == None):
-                temp = 'N/A'
-            additional_text += 'Dividend Yield: {}\n'.format(temp)
-        elif(i == 'Dividend Rate'):
+            if temp is None:
+                temp = '--'
+            text += 'Dividend Yield: {}\n'.format(temp)
+
+        elif selected == 'Dividend Rate':
             temp = tick.get_dividend_rate()
-            if(temp == None):
-                temp = 'N/A'
-            additional_text += 'Dividend Rate: {}\n'.format(temp)
+            if temp is None:
+                temp = '--'
+            text += 'Dividend Rate: {}\n'.format(temp)
+
+        elif selected == 'Yearly High':
+            temp = tick.get_yearly_high()
+            if temp is None:
+                temp = '--'
+            text += 'Yearly High: {}\n'.format(temp)
+
+        elif selected == 'Yearly Low':
+            temp = tick.get_yearly_low()
+            if temp is None:
+                temp = '--'
+            text += 'Yearly Low: {}\n'.format(temp)
+
+        elif selected == 'Annual Average Dividend Yield':
+            temp = tick.get_annual_avg_div_yield()
+            if temp is None:
+                temp = '--'
+            text += 'Annual Average Dividend Yield: {}\n'.format(temp)
+
+        elif selected == '5 Year Average Dividend Yield':
+            temp = tick.get_five_yr_avg_div_yield()
+            if temp is None:
+                temp = '--'
+            text += '5 Year Average Dividend Yield: {}\n'.format(temp)
 
     text2 = tk.Text(root, wrap='word', font=('Times', 18))
-    text2.insert('insert', additional_text)
-    # y was 46
-    text2.place(x=720, y=100, width=710, height=300)
+    text2.insert('insert', text)
+    text2.place(x=720, y=46, width=340, height=300)
     root.update()
 
 
@@ -173,7 +225,10 @@ currency_options = [
 additional_info = [
     "Dividend Yield",
     "Dividend Rate",
-    "Split History"
+    "Yearly High",
+    "Yearly Low",
+    "Annual Average Dividend Yield",
+    "5 Year Average Dividend Yield"
 ]
 
 
