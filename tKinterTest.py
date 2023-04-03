@@ -128,19 +128,19 @@ def display_stock_graph():
 
     # Create a figure and add a subplot
     fig = Figure(figsize=(14, 4), dpi=100)
-    grap = fig.add_subplot(111)
+    _graph = fig.add_subplot(111)
 
     # Plot the data as a line graph
-    grap.plot(stock_times, stock_prices)
+    _graph.plot(stock_times, stock_prices, color='green')
 
     # gets the current day
     fin_current_day = datetime.now().strftime('(%m-%d)')
 
     # Labels the graph
     _title = DEFAULT_ARGS + "'s Daily Prices " + fin_current_day
-    grap.set_title(_title)
-    grap.set_xlabel("Time(AM-PM)")
-    grap.set_ylabel("Stock Price($)")
+    _graph.set_title(_title)
+    _graph.set_xlabel("Time(AM-PM)")
+    _graph.set_ylabel("Stock Price($)")
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
