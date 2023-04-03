@@ -23,12 +23,12 @@ def default_api(ticker):
 
     tick = YF(ticker)
 
-    OUTPUT += '{:25s}{:,f}\n'.format('Current Price: ', tick.get_current_price())
-    OUTPUT += '{:22s}{:,f}\n'.format('Current Volume: ', tick.get_current_volume())
-    OUTPUT += '{:23s}{:,f}\n'.format('Prev Close Price: ', tick.get_prev_close_price())
-    OUTPUT += '{:26s}{:,f}\n'.format('Open Price: ', tick.get_open_price())
-    OUTPUT += '{:26s}{:,f}\n'.format('Daily Low: ', tick.get_daily_low())
-    OUTPUT += '{:27s}{:,f}\n'.format('Daily High: ', tick.get_daily_high())
+    OUTPUT += '{:25s}{:,.2f}\n'.format('Current Price: ', tick.get_current_price())
+    OUTPUT += '{:22s}{:,.2f}\n'.format('Current Volume: ', tick.get_current_volume())
+    OUTPUT += '{:23s}{:,.2f}\n'.format('Prev Close Price: ', tick.get_prev_close_price())
+    OUTPUT += '{:26s}{:,.2f}\n'.format('Open Price: ', tick.get_open_price())
+    OUTPUT += '{:26s}{:,.2f}\n'.format('Daily Low: ', tick.get_daily_low())
+    OUTPUT += '{:27s}{:,.2f}\n'.format('Daily High: ', tick.get_daily_high())
 
     try:
         r = tick._cache.keys()
