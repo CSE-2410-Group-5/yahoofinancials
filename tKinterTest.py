@@ -1,10 +1,12 @@
+from datetime import datetime, timedelta
 import tkinter as tk
 import sys
 import time
 from yahoofinancials import YahooFinancials as YF
+import yfinance as yf
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-import yfinance
+
 
 DEFAULT_ARGS = 'DOGE-JPY'
 MODULE_ARGS = ('yf', 'yahoofinancial', 'yahoofinancials')
@@ -100,24 +102,53 @@ def test_button():
 
 
 def display_stock_graph():
-    data = [tick.get_open_price(), tick.get_daily_low(), tick.get_daily_high(), tick.get_current_price()]
+    # stock ticker
+    DEFAULT_ARGS = (first_entry.get())
+
+    # makes the ticker a object
+    ticker_data = yf.Ticker(DEFAULT_ARGS)
+
+    # creates the boundary to extract data from
+    current_day = datetime.now().strftime('%Y-%m-%d')
+    tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+    current_day_data = ticker_data.history(start=current_day, end=tomorrow, interval='1m')
+
+    # shows data in intervals of 30 minutes
+    hours_data_30 = current_day_data.between_time('09:00:00', '16:00:00').resample('30T').last()
+
+    # Create empty lists to store the time and price
+    stock_times = []
+    stock_prices = []
+
+    # puts the items in their list
+    for hour, price in zip(hours_data_30.index, hours_data_30['Close']):
+        time = hour.strftime('%H:%M')
+        stock_times.append(time)
+        stock_prices.append(price)
 
     # Create a figure and add a subplot
-    fig = Figure(figsize=(5, 4), dpi=100)
-    ax = fig.add_subplot(111)
+    fig = Figure(figsize=(16, 4), dpi=100)
+    grap = fig.add_subplot(111)
 
     # Plot the data as a line graph
-    ax.plot(data)
+    grap.plot(stock_times, stock_prices)
+
+    # Labels the graph
+    _title = DEFAULT_ARGS + "'s Daily Prices"
+    grap.set_title(_title)
+    grap.set_xlabel("Time")
+    grap.set_ylabel("Stock Price")
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=390)
+    # end of method
 
 
 def is_valid_ticker(symbol):
     try:
-        ticker = yfinance.Ticker(symbol)
+        ticker = yf.Ticker(symbol)
         info = ticker.info['regularMarketPrice']
         return True
     except:
