@@ -122,28 +122,33 @@ def display_stock_graph():
 
     # puts the items in their list
     for hour, price in zip(hours_data_30.index, hours_data_30['Close']):
-        time = hour.strftime('%H:%M')
+        time = hour.strftime('%I:%M %p')
         stock_times.append(time)
         stock_prices.append(price)
 
     # Create a figure and add a subplot
-    fig = Figure(figsize=(16, 4), dpi=100)
+    fig = Figure(figsize=(14, 4), dpi=100)
     grap = fig.add_subplot(111)
 
     # Plot the data as a line graph
     grap.plot(stock_times, stock_prices)
 
+    # gets the current day
+    fin_current_day = datetime.now().strftime('(%m-%d)')
+
     # Labels the graph
-    _title = DEFAULT_ARGS + "'s Daily Prices"
+    _title = DEFAULT_ARGS + "'s Daily Prices " + fin_current_day
     grap.set_title(_title)
-    grap.set_xlabel("Time")
-    grap.set_ylabel("Stock Price")
+    grap.set_xlabel("Time(AM-PM)")
+    grap.set_ylabel("Stock Price($)")
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=390)
-    # end of method
+
+    # end of this method
+
 
 
 def is_valid_ticker(symbol):
