@@ -35,14 +35,12 @@ def default_api(ticker):
     except AttributeError:
         pass
 
-
 def custom_api(queries, ts):
     global OUTPUT
     yf = YF(ts[0] if 1 == len(ts) else ts)
     for q in queries:
         OUTPUT += ('%s:' % (q,)) + '\n'
         timeit(lambda: print(getattr(yf, q)()))
-
 
 def help_api(queries):
     global OUTPUT
