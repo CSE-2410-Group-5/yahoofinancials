@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 import tkinter as tk
+import tkinter.scrolledtext as scrolledtext
 import sys
 import time
 from yahoofinancials import YahooFinancials as YF
 import yfinance as yf
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-
 
 DEFAULT_ARGS = 'DOGE-JPY'
 MODULE_ARGS = ('yf', 'yahoofinancial', 'yahoofinancials')
@@ -35,12 +35,14 @@ def default_api(ticker):
     except AttributeError:
         pass
 
+
 def custom_api(queries, ts):
     global OUTPUT
     yf = YF(ts[0] if 1 == len(ts) else ts)
     for q in queries:
         OUTPUT += ('%s:' % (q,)) + '\n'
         timeit(lambda: print(getattr(yf, q)()))
+
 
 def help_api(queries):
     global OUTPUT
@@ -112,7 +114,7 @@ def display_stock_graph():
     current_day_data = ticker_data.history(start=current_day, end=tomorrow, interval='1m')
 
     # shows data in intervals of 30 minutes
-    hours_data_30 = current_day_data.between_time('09:00:00', '16:00:00').resample('30T').last()
+    hours_data_30 = current_day_data.between_time('09:00:00', '16:00:00').resample('25T').last()
 
     # Create empty lists to store the time and price
     stock_times = []
@@ -129,7 +131,7 @@ def display_stock_graph():
     grap = fig.add_subplot(111)
 
     # Plot the data as a line graph
-    grap.plot(stock_times, stock_prices)
+    grap.plot(stock_times, stock_prices, color='green')
 
     # gets the current day
     fin_current_day = datetime.now().strftime('(%m-%d)')
@@ -187,42 +189,60 @@ def update_selection():
             temp = tick.get_dividend_yield()
             if temp is None:
                 temp = '--'
-            text += 'Dividend Yield: {}\n'.format(temp)
+            text += 'Dividend Yield: {}\n'.format(temp) + (' ' * 58)
 
         elif selected == 'Dividend Rate':
             temp = tick.get_dividend_rate()
             if temp is None:
                 temp = '--'
-            text += 'Dividend Rate: {}\n'.format(temp)
+            text += 'Dividend Rate: {}\n'.format(temp) + (' ' * 58)
 
         elif selected == 'Yearly High':
             temp = tick.get_yearly_high()
             if temp is None:
                 temp = '--'
-            text += 'Yearly High: {}\n'.format(temp)
+            text += 'Yearly High: {}\n'.format(temp) + (' ' * 58)
 
         elif selected == 'Yearly Low':
             temp = tick.get_yearly_low()
             if temp is None:
                 temp = '--'
-            text += 'Yearly Low: {}\n'.format(temp)
+            text += 'Yearly Low: {}\n'.format(temp) + (' ' * 58)
 
-        elif selected == 'Annual Average Dividend Yield':
+        elif selected == 'Annual Avg. Div. Yield':
             temp = tick.get_annual_avg_div_yield()
             if temp is None:
                 temp = '--'
-            text += 'Annual Average Dividend Yield: {}\n'.format(temp)
+            text += 'Annual Average Dividend Yield: {}\n'.format(temp) + (' ' * 58)
 
-        elif selected == '5 Year Average Dividend Yield':
+        elif selected == '5 Year Avg. Div. Yield':
             temp = tick.get_five_yr_avg_div_yield()
             if temp is None:
                 temp = '--'
-            text += '5 Year Average Dividend Yield: {}\n'.format(temp)
+            text += '5 Year Average Dividend Yield: {}\n'.format(temp) + (' ' * 58)
 
-    text2 = tk.Text(root, wrap='word', font=('Times', 18))
+        elif selected == 'Annual Avg. Div. Rate':
+            temp = tick.get_annual_avg_div_rate()
+            if temp is None:
+                temp = '--'
+            text += 'Annual Average Dividend Rate: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == '50 Day Moving Avg.':
+            temp = tick.get_50day_moving_avg()
+            if temp is None:
+                temp = '--'
+            text += '50 Day Moving Average: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == '200 Day Moving Avg.':
+            temp = tick.get_200day_moving_avg()
+            if temp is None:
+                temp = '--'
+            text += '200 Day Moving Average: {}\n'.format(temp) + (' ' * 58)
+
+    text2 = scrolledtext.ScrolledText(root, wrap='word', font=('Times', 18))
     text2.insert('insert', text)
     # y was 46
-    text2.place(x=720, y=46, width=340, height=300)
+    text2.place(x=720, y=46, width=380, height=300)
     root.update()
 
 
@@ -234,12 +254,15 @@ currency_options = [
 ]
 
 additional_info = [
-    "Dividend Yield",
+    "5 Year Avg. Div. Yield",
+    "50 Day Moving Avg.",
+    "200 Day Moving Avg.",
+    "Annual Avg. Div. Rate",
+    "Annual Avg. Div. Yield",
     "Dividend Rate",
+    "Dividend Yield",
     "Yearly High",
-    "Yearly Low",
-    "Annual Average Dividend Yield",
-    "5 Year Average Dividend Yield",
+    "Yearly Low"
 ]
 
 # BEGIN TKINTER BUILD
