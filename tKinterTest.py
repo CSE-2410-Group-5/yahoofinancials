@@ -146,17 +146,17 @@ def update_selection():
     additional_text = ''
 
     for i in selected_options:
-        if (i == 'Dividend Yield'):
+        if i == 'Dividend Yield':
             temp = tick.get_dividend_yield()
-            if (temp == None):
+            if temp is None:
                 temp = 'N/A'
             additional_text += 'Dividend Yield: {}\n'.format(temp)
-        elif (i == 'Dividend Rate'):
+        elif i == 'Dividend Rate':
             temp = tick.get_dividend_rate()
-            if (temp == None):
+            if temp is None:
                 temp = 'N/A'
             additional_text += 'Dividend Rate: {}\n'.format(temp)
-        elif (i == "Split History"):
+        elif i == "Split History":
             temp = 'N/A'
             additional_text += 'Split History: {}\n'.format(temp)
 
@@ -164,7 +164,7 @@ def update_selection():
     text2.insert('insert', additional_text)
     # y was 46
     text2.place(x=720, y=46, width=340, height=300)
-    #root.update()
+    root.update()
 
 
 # BEGIN TKINTER BUILD
