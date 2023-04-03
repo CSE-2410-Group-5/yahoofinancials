@@ -122,28 +122,31 @@ def display_stock_graph():
 
     # puts the items in their list
     for hour, price in zip(hours_data_30.index, hours_data_30['Close']):
-        time = hour.strftime('%H:%M')
+        time = hour.strftime('%I:%M %p')
         stock_times.append(time)
         stock_prices.append(price)
 
     # Create a figure and add a subplot
-    fig = Figure(figsize=(16, 4), dpi=100)
+    fig = Figure(figsize=(16, 3.95), dpi=100)
     grap = fig.add_subplot(111)
 
     # Plot the data as a line graph
     grap.plot(stock_times, stock_prices)
 
+    # gets the current day
+    fin_current_day = datetime.now().strftime('(%m-%d)')
+
     # Labels the graph
-    _title = DEFAULT_ARGS + "'s Daily Prices"
+    _title = DEFAULT_ARGS + "'s Daily Prices " + fin_current_day
     grap.set_title(_title)
-    grap.set_xlabel("Time")
-    grap.set_ylabel("Stock Price")
+    grap.set_xlabel("Time(AM-PM)")
+    grap.set_ylabel("Stock Price($)")
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=390)
-    # end of method
+    # end of this method
 
 
 def is_valid_ticker(symbol):
@@ -174,38 +177,67 @@ def update_selection():
     dropdown_visible = False
     listbox.pack_forget()
 
-    additional_text = ''
-
-    for i in selected_options:
-        if i == 'Dividend Yield':
+    # Checks which choices have been chosen in the
+    # additional information drop down menu and
+    # returns the string to be printed to the screen
+    # Loops through chosen information
+    # Checks for each option in dropdown, calls appropriate
+    # methods and adds appropriate text for each selection
+    text = ''
+    for selected in selected_options:
+        if selected == 'Dividend Yield':
             temp = tick.get_dividend_yield()
             if temp is None:
-                temp = 'N/A'
-            additional_text += 'Dividend Yield: {}\n'.format(temp)
-        elif i == 'Dividend Rate':
+                temp = '--'
+            text += 'Dividend Yield: {}\n'.format(temp)
+
+        elif selected == 'Dividend Rate':
             temp = tick.get_dividend_rate()
             if temp is None:
-                temp = 'N/A'
-            additional_text += 'Dividend Rate: {}\n'.format(temp)
-        elif i == 'Yearly High':
+                temp = '--'
+            text += 'Dividend Rate: {}\n'.format(temp)
+
+        elif selected == 'Yearly High':
             temp = tick.get_yearly_high()
             if temp is None:
-                temp = 'N/A'
-            additional_text += 'Yearly High: {}\n'.format(temp)
-        elif i == 'Yearly Low':
+                temp = '--'
+            text += 'Yearly High: {}\n'.format(temp)
+
+        elif selected == 'Yearly Low':
             temp = tick.get_yearly_low()
             if temp is None:
-                temp = 'N/A'
-            additional_text += 'Yearly Low: {}\n'.format(temp)
+                temp = '--'
+            text += 'Yearly Low: {}\n'.format(temp)
+
+        elif selected == 'Annual Average Dividend Yield':
+            temp = tick.get_annual_avg_div_yield()
+            if temp is None:
+                temp = '--'
+            text += 'Annual Average Dividend Yield: {}\n'.format(temp)
+
+        elif selected == '5 Year Average Dividend Yield':
+            temp = tick.get_five_yr_avg_div_yield()
+            if temp is None:
+                temp = '--'
+            text += '5 Year Average Dividend Yield: {}\n'.format(temp)
 
     text2 = tk.Text(root, wrap='word', font=('Times', 18))
-    text2.insert('insert', additional_text)
+    text2.insert('insert', text)
     # y was 46
     text2.place(x=720, y=46, width=340, height=300)
     root.update()
 
 
-# BEGIN TKINTER BUILD
+# Checks which choices have been chosen in the
+# additional information drop down menu and
+# returns the string to be printed to the screen
+# Loops through chosen information
+# Checks for each option in dropdown, calls appropriate
+# methods and adds appropriate text for each selection
+
+
+
+
 
 # Holds data for drop down menus
 currency_options = [
@@ -218,8 +250,13 @@ additional_info = [
     "Dividend Yield",
     "Dividend Rate",
     "Yearly High",
-    "Yearly Low"
+    "Yearly Low",
+    "Annual Average Dividend Yield",
+    "5 Year Average Dividend Yield",
+
 ]
+
+# BEGIN TKINTER BUILD
 
 root = tk.Tk()
 root.title("test")
@@ -252,7 +289,7 @@ dropdown_frame.place(x=1058, y=0)
 # Create an entry widget to display the selected options
 dropdown_entry_var = tk.StringVar()
 dropdown_entry_var.set("Select options...")
-dropdown_entry = tk.Entry(dropdown_frame, textvariable=dropdown_entry_var, width=14, font=('Times', 26))
+dropdown_entry = tk.Entry(dropdown_frame, textvariable=dropdown_entry_var, width=19, font=('Times', 26))
 dropdown_entry.pack()
 
 # Create a listbox widget to display the options when the dropdown is opened
@@ -269,7 +306,7 @@ listbox.bind("<Button-1>", lambda event: dropdown_entry.focus())
 listbox.bind("<ButtonRelease-1>", lambda event: update_selection)
 
 add_info_go_button = tk.Button(root, text='GO', command=update_selection, height=2, width=5)
-add_info_go_button.place(x='1315', y=3)
+add_info_go_button.place(x='1404', y=3)
 
 quit_button = tk.Button(root, text='Quit', command=root.quit, height=2, width=5)
 quit_button.place(x=1480, y=0)

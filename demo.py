@@ -17,7 +17,7 @@ import time
 
 from yahoofinancials import YahooFinancials as YF
 
-DEFAULT_ARGS = ('MMM', 'AAPL')
+DEFAULT_ARGS = ('NIO', 'AAPL')
 MODULE_ARGS = ('yf', 'yahoofinancial', 'yahoofinancials')
 HELP_ARGS = ('-h', '--help')
 
