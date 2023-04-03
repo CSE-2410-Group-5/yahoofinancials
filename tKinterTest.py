@@ -156,9 +156,16 @@ def update_selection():
             if temp is None:
                 temp = 'N/A'
             additional_text += 'Dividend Rate: {}\n'.format(temp)
-        elif i == "Split History":
-            temp = 'N/A'
-            additional_text += 'Split History: {}\n'.format(temp)
+        elif i == 'Yearly High':
+            temp = tick.get_yearly_high()
+            if temp is None:
+                temp = 'N/A'
+            additional_text += 'Yearly High: {}\n'.format(temp)
+        elif i == 'Yearly Low':
+            temp = tick.get_yearly_low()
+            if temp is None:
+                temp = 'N/A'
+            additional_text += 'Yearly Low: {}\n'.format(temp)
 
     text2 = tk.Text(root, wrap='word', font=('Times', 18))
     text2.insert('insert', additional_text)
@@ -179,7 +186,8 @@ currency_options = [
 additional_info = [
     "Dividend Yield",
     "Dividend Rate",
-    "Split History"
+    "Yearly High",
+    "Yearly Low"
 ]
 
 root = tk.Tk()
