@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
 import tkinter as tk
-from tkinter import ttk
-from tkinter import *
 import tkinter.scrolledtext as scrolledtext
 import sys
 import time
+import pytz
 from yahoofinancials import YahooFinancials as YF
 import yfinance as yf
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -114,6 +113,11 @@ def display_stock_graph():
 
     # shows data in intervals of 15 minutes
     hours_data_15 = current_day_data.between_time('09:30:00', '16:00:00').resample('15T').last()
+
+    # Convert to eastern time
+    hours_data_15.index = hours_data_15.index.tz_convert('US/Eastern')
+    eastern_time = pytz.timezone('US/Eastern')
+    hours_data_15.index = hours_data_15.index.tz_convert(eastern_time)
 
     # Create empty lists to store the time and price
     stock_times = []
@@ -260,6 +264,12 @@ def update_selection():
                 temp = '--'
             text += 'Ex-Dividend Date: {}\n'.format(temp) + (' ' * 58)
 
+        elif selected == 'Market Cap':
+            temp = '{:,}'.format(tick.get_market_cap())
+            if temp is None:
+                temp = '--'
+            text += 'Market Cap: {}\n'.format(temp) + (' ' * 58)
+
         elif selected == 'Payout Ratio':
             temp = tick.get_payout_ratio()
             if temp is None:
@@ -306,9 +316,16 @@ def update_selection():
 
 # Holds data for drop down menus
 currency_options = [
-    "USD",
-    "CAD",
-    "EUR"
+    'USD', 'AUD', 'EUR', 'ALL', 'AOA',
+    'AMD', 'AUD', 'BEF', 'AZN', 'BBD',
+    'BOB', 'BAM', 'BND', 'CAD', 'CVE',
+    'CNY', 'COP', 'KMF', 'CRC', 'EGP',
+    'SVC', 'ETB', 'EUR', 'GEL', 'GHS',
+    'HKD', 'INR', 'IDR', 'LVL', 'LTL',
+    'MGA', 'MRO', 'MUR', 'NAD', 'NIO',
+    'NOK', 'PAB', 'PEN', 'PTE', 'WST',
+    'SAR', 'SKK', 'SOS', 'ESP', 'SDG',
+    'TOP', 'TTD', 'AED'
 ]
 
 additional_info = [
@@ -323,6 +340,7 @@ additional_info = [
     "Dividend Yield",
     "Earnings Per Share",
     "Ex-Dividend Date",
+    "Market Cap",
     "Payout Ratio",
     "Price To Sales Trail 1 Yr",
     "Shares Outstanding",
