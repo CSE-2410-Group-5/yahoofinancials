@@ -200,14 +200,20 @@ def update_selection():
                 temp = '--'
             text += '5 Year Average Dividend Yield: {}\n'.format(temp) + (' ' * 58)
 
+        if selected == '10-day Current Volume':
+            temp = '{:,}'.format(tick.get_ten_day_avg_daily_volume())
+            if temp is None:
+                temp = '--'
+            text += '10-day Current Volume: {}\n'.format(temp) + (' ' * 58)
+
         elif selected == '50 Day Moving Avg.':
-            temp = tick.get_50day_moving_avg()
+            temp = '{:,}'.format(tick.get_50day_moving_avg())
             if temp is None:
                 temp = '--'
             text += '50 Day Moving Average: {}\n'.format(temp) + (' ' * 58)
 
         elif selected == '200 Day Moving Avg.':
-            temp = tick.get_200day_moving_avg()
+            temp = '{:,}'.format(tick.get_200day_moving_avg())
             if temp is None:
                 temp = '--'
             text += '200 Day Moving Average: {}\n'.format(temp) + (' ' * 58)
@@ -242,6 +248,18 @@ def update_selection():
                 temp = '--'
             text += 'Dividend Yield: {}\n'.format(temp) + (' ' * 58)
 
+        elif selected == 'Earnings Per Share':
+            temp = tick.get_earnings_per_share()
+            if temp is None:
+                temp = '--'
+            text += 'Earnings Per Share: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == 'Ex-Dividend Date':
+            temp = tick.get_exdividend_date()
+            if temp is None:
+                temp = '--'
+            text += 'Ex-Dividend Date: {}\n'.format(temp) + (' ' * 58)
+
         elif selected == 'Payout Ratio':
             temp = tick.get_payout_ratio()
             if temp is None:
@@ -254,20 +272,26 @@ def update_selection():
                 temp = '--'
             text += 'Price To Sales Trailing 1 Year: {}\n'.format(temp) + (' ' * 58)
 
+        elif selected == 'Shares Outstanding':
+            temp = '{:,}'.format(tick.get_num_shares_outstanding())
+            if temp is None:
+                temp = '--'
+            text += 'Shares Outstanding: {}\n'.format(temp) + (' ' * 58)
+
         elif selected == 'Trailing PE':
-            temp = tick.get_pe_ratio()
+            temp = '{:,}'.format(tick.get_pe_ratio())
             if temp is None:
                 temp = '--'
             text += 'Trailing Price-To-Earnings: {}\n'.format(temp) + (' ' * 58)
 
         elif selected == 'Yearly High':
-            temp = tick.get_yearly_high()
+            temp = '{:,}'.format(tick.get_yearly_high())
             if temp is None:
                 temp = '--'
             text += 'Yearly High: {}\n'.format(temp) + (' ' * 58)
 
         elif selected == 'Yearly Low':
-            temp = tick.get_yearly_low()
+            temp = '{:,}'.format(tick.get_yearly_low())
             if temp is None:
                 temp = '--'
             text += 'Yearly Low: {}\n'.format(temp) + (' ' * 58)
@@ -289,6 +313,7 @@ currency_options = [
 
 additional_info = [
     "5 Year Avg. Div. Yield",
+    "10-day Current Volume",
     "50 Day Moving Avg.",
     "200 Day Moving Avg.",
     "Annual Avg. Div. Rate",
@@ -296,9 +321,12 @@ additional_info = [
     "Beta",
     "Dividend Rate",
     "Dividend Yield",
-    "Trailing PE",
+    "Earnings Per Share",
+    "Ex-Dividend Date",
     "Payout Ratio",
     "Price To Sales Trail 1 Yr",
+    "Shares Outstanding",
+    "Trailing PE",
     "Yearly High",
     "Yearly Low"
 ]
