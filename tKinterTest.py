@@ -31,7 +31,6 @@ def default_api(ticker):
     OUTPUT += '{:26s}{:,f}\n'.format('Daily Low: ', tick.get_daily_low())
     OUTPUT += '{:27s}{:,f}\n'.format('Daily High: ', tick.get_daily_high())
 
-
     try:
         r = tick._cache.keys()
     except AttributeError:
@@ -44,6 +43,7 @@ def custom_api(queries, ts):
     for q in queries:
         OUTPUT += ('%s:' % (q,)) + '\n'
         timeit(lambda: print(getattr(yf, q)()))
+
 
 def help_api(queries):
     global OUTPUT
@@ -68,7 +68,7 @@ def timeit(f, *args):
 # Calls all necessary functions to set up the ticker
 def setup():
     global OUTPUT
-
+    
     api = set(s for s in dir(YF) if s.startswith('get_'))
     api.update(MODULE_ARGS)
     api.update(HELP_ARGS)
@@ -359,7 +359,6 @@ currency_drop = tk.OptionMenu(root, clicked, *currency_options)
 currency_drop.config(height=2, width=6)
 currency_drop.place(x=585, y=0)
 
-
 # Go button for search bar
 search_bar_go_button = tk.Button(root, text='GO', command=lambda:create_ticker(), height = 2, width = 5)
 search_bar_go_button.place(x=665, y=3)
@@ -404,9 +403,7 @@ quit_button.place(x = 1480, y = 0)
 
 # Graph button
 graph_button = tk.Button(root, text='Graph', command=lambda:display_stock_graph(), height = 2, width = 5)
-
 graph_button.place(x=1, y=348)
 
 # Allows the user to view the window
 root.mainloop()
-
