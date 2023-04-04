@@ -104,61 +104,60 @@ def create_ticker():
 
 
 def display_stock_graph():
+    # stock ticker
+    #DEFAULT_ARGS = (first_entry.get())
+
+    # makes the ticker object
     ticker_data = yf.Ticker(DEFAULT_ARGS)
 
-    # Creates the boundary to extract data from
+    # creates the boundary to extract data from
     current_day = datetime.now().strftime('%Y-%m-%d')
     tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     current_day_data = ticker_data.history(start=current_day, end=tomorrow, interval='1m')
 
-    # shows data in intervals of 15 minutes
-    hours_data_15 = current_day_data.between_time('09:30:00', '16:00:00').resample('15T').last()
+    # shows data in intervals of 20 minutes
+    hours_data_20 = current_day_data.between_time('09:00:00', '16:00:00').resample('15T').last()
 
-    # Convert to eastern time
-    hours_data_15.index = hours_data_15.index.tz_convert('US/Eastern')
+    # convert to Eastern Time
+    hours_data_20.index = hours_data_20.index.tz_convert('US/Eastern')
     eastern_time = pytz.timezone('US/Eastern')
-    hours_data_15.index = hours_data_15.index.tz_convert(eastern_time)
+    hours_data_20.index = hours_data_20.index.tz_convert(eastern_time)
 
     # Create empty lists to store the time and price
     stock_times = []
     stock_prices = []
 
     # puts the items in their own list
-    for hour, price in zip(hours_data_15.index, hours_data_15['Close']):
+    for hour, price in zip(hours_data_20.index, hours_data_20['Close']):
         time = hour.strftime('%I:%M %p')
         stock_times.append(time)
         stock_prices.append(price)
 
-    time = hour.strftime('%I:%M %p')
-    stock_times.append(time)
-    stock_prices.append(price)
-
     # Create a figure and add a subplot
-
     fig = Figure(figsize=(16, 3.95), dpi=100)
-    ax = fig.add_subplot(111)
+    _graph = fig.add_subplot(111)
 
-    # Plot the data as a line graph
-    ax.tick_params(axis='x', labelsize=6)
+    _graph.tick_params(axis='x', labelsize=6)
     # plots graph and checks if the stock has gained value or lost
     graph_color = 'green'
-    if stock_prices[0] > stock_prices[len(stock_prices) - 1]:
+    if stock_prices[0] > stock_prices[len(stock_prices)-1]:
         graph_color = 'red'
-    ax.plot(stock_times, stock_prices, color=graph_color)
+    _graph.plot(stock_times, stock_prices, color=graph_color)
 
-    # Gets the current day
+    # gets the current day
     fin_current_day = datetime.now().strftime('(%m-%d)')
 
     # Labels the graph
-    _title = DEFAULT_ARGS + "'s Daily Prices " + fin_current_day
-    ax.set_title(_title)
-    ax.set_xlabel("Time(AM-PM)")
-    ax.set_ylabel("Stock Price($)")
+    _title = DEFAULT_ARGS.upper() + "'s Daily Prices " + fin_current_day
+    _graph.set_title(_title)
+    _graph.set_xlabel("Time(AM-PM)")
+    _graph.set_ylabel("Stock Price($)")
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    canvas.get_tk_widget().place(x=1, y=390)
+    canvas.get_tk_widget().place(x=0, y=390)
+
     # end of this method
 
 
