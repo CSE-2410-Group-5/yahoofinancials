@@ -4,8 +4,8 @@ import tkinter.scrolledtext as scrolledtext
 import sys
 import time
 import pytz
+import yfinance
 from yahoofinancials import YahooFinancials as YF
-import yfinance as yf
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
@@ -20,14 +20,16 @@ def default_api(ticker):
     global OUTPUT
     global tick
 
+    # Stores ticker so info can be grabbed
     tick = YF(ticker)
 
-    OUTPUT += '{:25s}{:,.2f}\n'.format('Current Price: ', tick.get_current_price())
-    OUTPUT += '{:22s}{:,.2f}\n'.format('Current Volume: ', tick.get_current_volume())
-    OUTPUT += '{:23s}{:,.2f}\n'.format('Prev Close Price: ', tick.get_prev_close_price())
-    OUTPUT += '{:26s}{:,.2f}\n'.format('Open Price: ', tick.get_open_price())
-    OUTPUT += '{:26s}{:,.2f}\n'.format('Daily Low: ', tick.get_daily_low())
-    OUTPUT += '{:27s}{:,.2f}\n'.format('Daily High: ', tick.get_daily_high())
+    # Adds all the basic ticker info to output string
+    OUTPUT += '{:25s}{:,f}\n'.format('Current Price: ', tick.get_current_price())
+    OUTPUT += '{:22s}{:,f}\n'.format('Current Volume: ', tick.get_current_volume())
+    OUTPUT += '{:23s}{:,f}\n'.format('Prev Close Price: ', tick.get_prev_close_price())
+    OUTPUT += '{:26s}{:,f}\n'.format('Open Price: ', tick.get_open_price())
+    OUTPUT += '{:26s}{:,f}\n'.format('Daily Low: ', tick.get_daily_low())
+    OUTPUT += '{:27s}{:,f}\n'.format('Daily High: ', tick.get_daily_high())
 
     try:
         r = tick._cache.keys()
@@ -104,11 +106,8 @@ def create_ticker():
 
 
 def display_stock_graph():
-    # stock ticker
-    #DEFAULT_ARGS = (first_entry.get())
-
     # makes the ticker object
-    ticker_data = yf.Ticker(DEFAULT_ARGS)
+    ticker_data = yfinance.Ticker(DEFAULT_ARGS)
 
     # creates the boundary to extract data from
     current_day = datetime.now().strftime('%Y-%m-%d')
@@ -163,7 +162,7 @@ def display_stock_graph():
 
 def is_valid_ticker(symbol):
     try:
-        ticker = yf.Ticker(symbol)
+        ticker = yfinance.Ticker(symbol)
         info = ticker.info['regularMarketPrice']
         return True
     except:
