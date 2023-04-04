@@ -304,9 +304,16 @@ def update_selection():
 
 # Holds data for drop down menus
 currency_options = [
-    "USD",
-    "CAD",
-    "EUR"
+    USD', 'AUD', 'EUR', 'ALL', 'AOA',
+     'AMD', 'AUD', 'BEF', 'AZN', 'BBD',
+     'BOB', 'BAM', 'BND', 'CAD', 'CVE',
+     'CNY', 'COP', 'KMF', 'CRC', 'EGP',
+     'SVC', 'ETB', 'EUR', 'GEL', 'GHS',
+     'HKD', 'INR', 'IDR', 'LVL', 'LTL',
+     'MGA', 'MRO', 'MUR', 'NAD', 'NIO',
+     'NOK', 'PAB', 'PEN', 'PTE', 'WST',
+     'SAR', 'SKK', 'SOS', 'ESP', 'SDG',
+     'TOP', 'TTD', 'AED'
 ]
 
 additional_info = [
