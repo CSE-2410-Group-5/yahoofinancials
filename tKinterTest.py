@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 import tkinter as tk
+from tkinter import ttk
+from tkinter import *
 import tkinter.scrolledtext as scrolledtext
 import sys
 import time
@@ -8,12 +10,10 @@ import yfinance as yf
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-DEFAULT_ARGS = 'DOGE-JPY'
+DEFAULT_ARGS = ()
 MODULE_ARGS = ('yf', 'yahoofinancial', 'yahoofinancials')
 HELP_ARGS = ('-h', '--help')
 OUTPUT = ''
-mark = '-' * 64
-
 tick = None
 
 
@@ -80,6 +80,7 @@ def setup():
     else:
         timeit(default_api, ts[0] if 1 == len(ts) else ts)
 
+    # Creates textbox for basic ticker information
     text = tk.Text(root, wrap='word', font=('Times', 18))
     text.insert('insert', OUTPUT)
     text.place(x=1, y=46, width=710, height=300)
@@ -87,13 +88,15 @@ def setup():
     OUTPUT = ''
 
 
-def test_button():
+# Takes ticker entered by user and sets it up if valid
+def create_ticker():
     global DEFAULT_ARGS
     DEFAULT_ARGS = (first_entry.get())
 
     if is_valid_ticker(DEFAULT_ARGS):
         setup()
     else:
+        # Cryptos need a specific currency in order to grab info
         DEFAULT_ARGS += '-' + clicked.get()
         if is_valid_ticker(DEFAULT_ARGS):
             setup()
@@ -102,50 +105,56 @@ def test_button():
 
 
 def display_stock_graph():
-    # stock ticker
-    DEFAULT_ARGS = (first_entry.get())
-
-    # makes the ticker a object
     ticker_data = yf.Ticker(DEFAULT_ARGS)
 
-    # creates the boundary to extract data from
+    # Creates the boundary to extract data from
     current_day = datetime.now().strftime('%Y-%m-%d')
     tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     current_day_data = ticker_data.history(start=current_day, end=tomorrow, interval='1m')
 
-    # shows data in intervals of 30 minutes
-    hours_data_30 = current_day_data.between_time('09:00:00', '16:00:00').resample('25T').last()
+    # shows data in intervals of 15 minutes
+    hours_data_15 = current_day_data.between_time('09:30:00', '16:00:00').resample('15T').last()
 
     # Create empty lists to store the time and price
     stock_times = []
     stock_prices = []
 
-    # puts the items in their list
-    for hour, price in zip(hours_data_30.index, hours_data_30['Close']):
+    # puts the items in their own list
+    for hour, price in zip(hours_data_15.index, hours_data_15['Close']):
         time = hour.strftime('%I:%M %p')
         stock_times.append(time)
         stock_prices.append(price)
 
+    time = hour.strftime('%I:%M %p')
+    stock_times.append(time)
+    stock_prices.append(price)
+
     # Create a figure and add a subplot
-    fig = Figure(figsize=(16, 4), dpi=100)
-    grap = fig.add_subplot(111)
+
+    fig = Figure(figsize=(16, 3.95), dpi=100)
+    ax = fig.add_subplot(111)
 
     # Plot the data as a line graph
-    grap.plot(stock_times, stock_prices, color='green')
+    ax.tick_params(axis='x', labelsize=6)
+    # plots graph and checks if the stock has gained value or lost
+    graph_color = 'green'
+    if stock_prices[0] > stock_prices[len(stock_prices) - 1]:
+        graph_color = 'red'
+    ax.plot(stock_times, stock_prices, color=graph_color)
 
-    # gets the current day
+    # Gets the current day
     fin_current_day = datetime.now().strftime('(%m-%d)')
 
     # Labels the graph
     _title = DEFAULT_ARGS + "'s Daily Prices " + fin_current_day
-    grap.set_title(_title)
-    grap.set_xlabel("Time(AM-PM)")
-    grap.set_ylabel("Stock Price($)")
+    ax.set_title(_title)
+    ax.set_xlabel("Time(AM-PM)")
+    ax.set_ylabel("Stock Price($)")
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    canvas.get_tk_widget().place(x=0, y=390)
+    canvas.get_tk_widget().place(x=1, y=390)
     # end of this method
 
 
@@ -185,17 +194,71 @@ def update_selection():
     # methods and adds appropriate text for each selection
     text = ''
     for selected in selected_options:
-        if selected == 'Dividend Yield':
-            temp = tick.get_dividend_yield()
+        if selected == '5 Year Avg. Div. Yield':
+            temp = tick.get_five_yr_avg_div_yield()
             if temp is None:
                 temp = '--'
-            text += 'Dividend Yield: {}\n'.format(temp) + (' ' * 58)
+            text += '5 Year Average Dividend Yield: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == '50 Day Moving Avg.':
+            temp = tick.get_50day_moving_avg()
+            if temp is None:
+                temp = '--'
+            text += '50 Day Moving Average: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == '200 Day Moving Avg.':
+            temp = tick.get_200day_moving_avg()
+            if temp is None:
+                temp = '--'
+            text += '200 Day Moving Average: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == 'Annual Avg. Div. Rate':
+            temp = tick.get_annual_avg_div_rate()
+            if temp is None:
+                temp = '--'
+            text += 'Annual Average Dividend Rate: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == 'Annual Avg. Div. Yield':
+            temp = tick.get_annual_avg_div_yield()
+            if temp is None:
+                temp = '--'
+            text += 'Annual Average Dividend Yield: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == 'Beta':
+            temp = tick.get_beta()
+            if temp is None:
+                temp = '--'
+            text += 'Beta: {}\n'.format(temp) + (' ' * 58)
 
         elif selected == 'Dividend Rate':
             temp = tick.get_dividend_rate()
             if temp is None:
                 temp = '--'
             text += 'Dividend Rate: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == 'Dividend Yield':
+            temp = tick.get_dividend_yield()
+            if temp is None:
+                temp = '--'
+            text += 'Dividend Yield: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == 'Payout Ratio':
+            temp = tick.get_payout_ratio()
+            if temp is None:
+                temp = '--'
+            text += 'Payout ratio: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == 'Price To Sales Trail 1 Yr':
+            temp = tick.get_price_to_sales()
+            if temp is None:
+                temp = '--'
+            text += 'Price To Sales Trailing 1 Year: {}\n'.format(temp) + (' ' * 58)
+
+        elif selected == 'Trailing PE':
+            temp = tick.get_pe_ratio()
+            if temp is None:
+                temp = '--'
+            text += 'Trailing Price-To-Earnings: {}\n'.format(temp) + (' ' * 58)
 
         elif selected == 'Yearly High':
             temp = tick.get_yearly_high()
@@ -209,35 +272,6 @@ def update_selection():
                 temp = '--'
             text += 'Yearly Low: {}\n'.format(temp) + (' ' * 58)
 
-        elif selected == 'Annual Avg. Div. Yield':
-            temp = tick.get_annual_avg_div_yield()
-            if temp is None:
-                temp = '--'
-            text += 'Annual Average Dividend Yield: {}\n'.format(temp) + (' ' * 58)
-
-        elif selected == '5 Year Avg. Div. Yield':
-            temp = tick.get_five_yr_avg_div_yield()
-            if temp is None:
-                temp = '--'
-            text += '5 Year Average Dividend Yield: {}\n'.format(temp) + (' ' * 58)
-
-        elif selected == 'Annual Avg. Div. Rate':
-            temp = tick.get_annual_avg_div_rate()
-            if temp is None:
-                temp = '--'
-            text += 'Annual Average Dividend Rate: {}\n'.format(temp) + (' ' * 58)
-
-        elif selected == '50 Day Moving Avg.':
-            temp = tick.get_50day_moving_avg()
-            if temp is None:
-                temp = '--'
-            text += '50 Day Moving Average: {}\n'.format(temp) + (' ' * 58)
-
-        elif selected == '200 Day Moving Avg.':
-            temp = tick.get_200day_moving_avg()
-            if temp is None:
-                temp = '--'
-            text += '200 Day Moving Average: {}\n'.format(temp) + (' ' * 58)
 
     text2 = scrolledtext.ScrolledText(root, wrap='word', font=('Times', 18))
     text2.insert('insert', text)
@@ -259,8 +293,12 @@ additional_info = [
     "200 Day Moving Avg.",
     "Annual Avg. Div. Rate",
     "Annual Avg. Div. Yield",
+    "Beta",
     "Dividend Rate",
     "Dividend Yield",
+    "Trailing PE",
+    "Payout Ratio",
+    "Price To Sales Trail 1 Yr",
     "Yearly High",
     "Yearly Low"
 ]
@@ -284,7 +322,7 @@ currency_drop = tk.OptionMenu(root, clicked, *currency_options)
 currency_drop.config(height=2, width=6)
 currency_drop.place(x=585, y=0)
 
-search_bar_go_button = tk.Button(root, text='GO', command=lambda: test_button(), height=2, width=5)
+search_bar_go_button = tk.Button(root, text='GO', command=lambda: create_ticker(), height=2, width=5)
 search_bar_go_button.place(x=665, y=3)
 
 # Additional information text
@@ -300,14 +338,17 @@ dropdown_entry_var = tk.StringVar()
 dropdown_entry_var.set("Select options...")
 dropdown_entry = tk.Entry(dropdown_frame, textvariable=dropdown_entry_var, width=19, font=('Times', 26))
 dropdown_entry.pack()
-
 # Create a listbox widget to display the options when the dropdown is opened
 dropdown_visible = False
 listbox = tk.Listbox(dropdown_frame, selectmode=tk.MULTIPLE, font=('Times', 18))
 for option in additional_info:
     listbox.insert(tk.END, option)
+# Create a Scrollbar for the Listbox
+listbox_scrollbar = tk.Scrollbar(dropdown_frame, orient=tk.VERTICAL, command=listbox.yview)
+# Configure the Listbox to use the Scrollbar
+listbox.configure(yscrollcommand=listbox_scrollbar.set)
+listbox_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 listbox.pack_forget()
-
 # Bind events to the entry and listbox widgets to handle the dropdown behavior
 dropdown_entry.bind("<Button-1>", toggle_dropdown)
 listbox.bind("<FocusOut>", lambda event: dropdown_entry.focus())
