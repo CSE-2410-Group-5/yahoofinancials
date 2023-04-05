@@ -190,20 +190,20 @@ def is_valid_ticker(symbol):
 def toggle_dropdown(event):
     global dropdown_visible
     if dropdown_visible:
-        listbox.pack_forget()
+        additional_info_box.pack_forget()
         dropdown_visible = False
     else:
-        listbox.pack()
+        additional_info_box.pack()
         dropdown_visible = True
 
 
 # Function to update the selected options when the user makes a selection
 def update_selection():
     global selected_options, dropdown_visible
-    selected_options = [listbox.get(idx) for idx in listbox.curselection()]
-    dropdown_entry_var.set(", ".join(selected_options))
+    selected_options = [additional_info_box.get(idx) for idx in additional_info_box.curselection()]
+    dropdown_entry_box.set(", ".join(selected_options))
     dropdown_visible = False
-    listbox.pack_forget()
+    additional_info_box.pack_forget()
 
     # Checks which choices have been chosen in the
     # additional information drop down menu and
@@ -395,26 +395,26 @@ stock_data_label.place(x=720, y=0)
 dropdown_frame = tk.Frame(root)
 dropdown_frame.place(x=1058, y=0)
 # Create an entry widget to display the selected options
-dropdown_entry_var = tk.StringVar()
-dropdown_entry_var.set("Select options...")
-dropdown_entry = tk.Entry(dropdown_frame, textvariable=dropdown_entry_var, width=19, font=('Times', 26))
-dropdown_entry.pack()
+dropdown_entry_box = tk.StringVar()
+dropdown_entry_box.set("Select options...")
+dropdown_list = tk.Entry(dropdown_frame, textvariable=dropdown_entry_box, width=19, font=('Times', 26))
+dropdown_list.pack()
 # Create a listbox widget to display the options when the dropdown is opened
 dropdown_visible = False
-listbox = tk.Listbox(dropdown_frame, selectmode=tk.MULTIPLE, font=('Times', 18))
+additional_info_box = tk.Listbox(dropdown_frame, selectmode=tk.MULTIPLE, font=('Times', 18))
 for option in additional_info:
-    listbox.insert(tk.END, option)
+    additional_info_box.insert(tk.END, option)
 # Create a Scrollbar for the Listbox
-listbox_scrollbar = tk.Scrollbar(dropdown_frame, orient=tk.VERTICAL, command=listbox.yview)
+listbox_scrollbar = tk.Scrollbar(dropdown_frame, orient=tk.VERTICAL, command=additional_info_box.yview)
 # Configure the Listbox to use the Scrollbar
-listbox.configure(yscrollcommand=listbox_scrollbar.set)
+additional_info_box.configure(yscrollcommand=listbox_scrollbar.set)
 listbox_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-listbox.pack_forget()
+additional_info_box.pack_forget()
 # Bind events to the entry and listbox widgets to handle the dropdown behavior
-dropdown_entry.bind("<Button-1>", toggle_dropdown)
-listbox.bind("<FocusOut>", lambda event: dropdown_entry.focus())
-listbox.bind("<Button-1>", lambda event: dropdown_entry.focus())
-listbox.bind("<ButtonRelease-1>", lambda event: update_selection)
+dropdown_list.bind("<Button-1>", toggle_dropdown)
+additional_info_box.bind("<FocusOut>", lambda event: dropdown_list.focus())
+additional_info_box.bind("<Button-1>", lambda event: dropdown_list.focus())
+additional_info_box.bind("<ButtonRelease-1>", lambda event: update_selection)
 
 add_info_go_button = tk.Button(root, text='GO', command=update_selection, height=2, width=5)
 add_info_go_button.place(x='1404', y=3)
