@@ -1,12 +1,13 @@
+from datetime import datetime, timedelta
+import tkinter as tk
+import tkinter.scrolledtext as scrolledtext
+import sys
+import time
+import pytz
+import yfinance
 from yahoofinancials import YahooFinancials as YF
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from datetime import datetime, timedelta
-import tkinter as tk
-import yfinance
-import time
-import sys
-
 
 DEFAULT_ARGS = ()
 MODULE_ARGS = ('yf', 'yahoofinancial', 'yahoofinancials')
@@ -15,15 +16,14 @@ OUTPUT = ''
 tick = None
 
 
-# Creates Ticker and displays basic info
 def default_api(ticker):
     global OUTPUT
     global tick
-    
+
     # Stores ticker so info can be grabbed
     tick = YF(ticker)
-    
-    # Adds all of the basic ticker info to output string
+
+    # Adds all the basic ticker info to output string
     OUTPUT += '{:25s}{:,f}\n'.format('Current Price: ', tick.get_current_price())
     OUTPUT += '{:22s}{:,f}\n'.format('Current Volume: ', tick.get_current_volume())
     OUTPUT += '{:23s}{:,f}\n'.format('Prev Close Price: ', tick.get_prev_close_price())
@@ -65,10 +65,9 @@ def timeit(f, *args):
     et = time.time()
 
 
-# Calls all necessary functions to set up the ticker
 def setup():
     global OUTPUT
-    
+
     api = set(s for s in dir(YF) if s.startswith('get_'))
     api.update(MODULE_ARGS)
     api.update(HELP_ARGS)
@@ -81,7 +80,7 @@ def setup():
         custom_api(queries, ts)
     else:
         timeit(default_api, ts[0] if 1 == len(ts) else ts)
-    
+
     # Creates textbox for basic ticker information
     text = tk.Text(root, wrap='word', font=('Times', 18))
     text.insert('insert', OUTPUT)
@@ -92,75 +91,84 @@ def setup():
 
 # Takes ticker entered by user and sets it up if valid
 def create_ticker():
-    global DEFAULT_ARGS 
+    global DEFAULT_ARGS
     DEFAULT_ARGS = (first_entry.get())
 
-    if(is_valid_ticker(DEFAULT_ARGS)):
+    if is_valid_ticker(DEFAULT_ARGS):
         setup()
     else:
         # Cryptos need a specific currency in order to grab info
         DEFAULT_ARGS += '-' + clicked.get()
-        if(is_valid_ticker(DEFAULT_ARGS)):
+        if is_valid_ticker(DEFAULT_ARGS):
             setup()
         else:
             tk.messagebox.showinfo('Invalid Ticker', 'The option you entered is not a valid ticker. Please try again.')
 
 
-# Displays the graph for the entered ticker
 def display_stock_graph():
+    # makes the ticker object
     ticker_data = yfinance.Ticker(DEFAULT_ARGS)
 
-    # Creates the boundary to extract data from
+    # creates the boundary to extract data from
     current_day = datetime.now().strftime('%Y-%m-%d')
     tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     current_day_data = ticker_data.history(start=current_day, end=tomorrow, interval='1m')
 
-    # Shows data in intervals of 15 minutes
-    hours_data_15 = current_day_data.between_time('09:30:00', '16:00:00').resample('15T').last()
+    current_time = datetime.today().strftime('%H:%M:%S')
+
+    open_time = '9:30:00'
+    close_time = '16:00:00'
+
+    if open_time > current_time:
+        mess = tk.Label(root, text="Stock market is closed, try again later", font=('Times', 26))
+        mess.place(x=500, y=500)
+
+    # shows data in intervals of 20 minutes
+    hours_data_20 = current_day_data.between_time(open_time, close_time).resample('15T').last()
+
+    # convert to Eastern Time
+    hours_data_20.index = hours_data_20.index.tz_convert('US/Eastern')
+    eastern_time = pytz.timezone('US/Eastern')
+    hours_data_20.index = hours_data_20.index.tz_convert(eastern_time)
 
     # Create empty lists to store the time and price
     stock_times = []
     stock_prices = []
 
-    # Puts the items in their own list
-    for hour, price in zip(hours_data_15.index, hours_data_15['Close']):
+    # puts the items in their own list
+    for hour, price in zip(hours_data_20.index, hours_data_20['Close']):
         time = hour.strftime('%I:%M %p')
         stock_times.append(time)
         stock_prices.append(price)
 
-    time = hour.strftime('%I:%M %p')
-    stock_times.append(time)
-    stock_prices.append(price)
-
     # Create a figure and add a subplot
-
     fig = Figure(figsize=(16, 3.95), dpi=100)
-    ax = fig.add_subplot(111)
+    _graph = fig.add_subplot(111)
 
-    # Plot the data as a line graph
-    ax.tick_params(axis='x', labelsize=6)
-    # Plots graph and checks if the stock has gained value or lost
+    _graph.tick_params(axis='x', labelsize=6)
+    # plots graph and checks if the stock has gained value or lost
     graph_color = 'green'
     if stock_prices[0] > stock_prices[len(stock_prices) - 1]:
         graph_color = 'red'
-    ax.plot(stock_times, stock_prices, color=graph_color)
+    _graph.plot(stock_times, stock_prices, color=graph_color)
 
-    # Gets the current day
+    # gets the current day
     fin_current_day = datetime.now().strftime('(%m-%d)')
 
     # Labels the graph
-    _title = DEFAULT_ARGS + "'s Daily Prices " + fin_current_day
-    ax.set_title(_title)
-    ax.set_xlabel("Time(AM-PM)")
-    ax.set_ylabel("Stock Price($)")
+    _title = DEFAULT_ARGS.upper() + "'s Daily Prices " + fin_current_day
+    _graph.set_title(_title)
+    _graph.set_xlabel("Time(AM-PM)")
+    _graph.set_ylabel("Stock Price($)")
 
     # Create a canvas to display the graph in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    canvas.get_tk_widget().place(x=1, y=390)
+    canvas.get_tk_widget().place(x=0, y=390)
+
+    # end of this method
 
 
-# Checks if ticker is valid
 def is_valid_ticker(symbol):
     try:
         ticker = yfinance.Ticker(symbol)
@@ -189,7 +197,12 @@ def update_selection():
     dropdown_visible = False
     listbox.pack_forget()
 
-    # Calls specific functions based on selected values
+    # Checks which choices have been chosen in the
+    # additional information drop down menu and
+    # returns the string to be printed to the screen
+    # Loops through chosen information
+    # Checks for each option in dropdown, calls appropriate
+    # methods and adds appropriate text for each selection
     text = ''
     for selected in selected_options:
         if selected == '5 Year Avg. Div. Yield':
@@ -198,7 +211,7 @@ def update_selection():
                 temp = '--'
             text += '5 Year Average Dividend Yield: {}\n'.format(temp) + (' ' * 58)
 
-        elif selected == '10-day Current Volume':
+        if selected == '10-day Current Volume':
             temp = '{:,}'.format(tick.get_ten_day_avg_daily_volume())
             if temp is None:
                 temp = '--'
@@ -258,6 +271,12 @@ def update_selection():
                 temp = '--'
             text += 'Ex-Dividend Date: {}\n'.format(temp) + (' ' * 58)
 
+        elif selected == 'Market Cap':
+            temp = '{:,}'.format(tick.get_market_cap())
+            if temp is None:
+                temp = '--'
+            text += 'Market Cap: {}\n'.format(temp) + (' ' * 58)
+
         elif selected == 'Payout Ratio':
             temp = tick.get_payout_ratio()
             if temp is None:
@@ -294,14 +313,12 @@ def update_selection():
                 temp = '--'
             text += 'Yearly Low: {}\n'.format(temp) + (' ' * 58)
 
-    # Creates a textbox for the additional ticker info
-    text2 = tk.Text(root, wrap='word', font=('Times', 18))
+
+    text2 = scrolledtext.ScrolledText(root, wrap='word', font=('Times', 18))
     text2.insert('insert', text)
-    text2.place(x=720, y=46, width=340, height=300)
+    # y was 46
+    text2.place(x=720, y=46, width=380, height=300)
     root.update()
-
-
-# BEGIN TKINTER BUILD
 
 
 # Holds data for drop down menus
@@ -316,7 +333,7 @@ currency_options = [
     'NOK', 'PAB', 'PEN', 'PTE', 'WST',
     'SAR', 'SKK', 'SOS', 'ESP', 'SDG',
     'TOP', 'TTD', 'AED'
-    ]
+]
 
 additional_info = [
     "5 Year Avg. Div. Yield",
@@ -330,25 +347,24 @@ additional_info = [
     "Dividend Yield",
     "Earnings Per Share",
     "Ex-Dividend Date",
+    "Market Cap",
     "Payout Ratio",
     "Price To Sales Trail 1 Yr",
     "Shares Outstanding",
     "Trailing PE",
     "Yearly High",
     "Yearly Low"
-    ]
+]
 
+# BEGIN TKINTER BUILD
 
-# Creates window for GUI
 root = tk.Tk()
 root.title("test")
 root.geometry("2000x900")
 
-# Asks user to enter ticker
 first_label = tk.Label(root, text='Enter ticker here: ', font=('Times', 26))
 first_label.place(x=0, y=0)
 
-# Entry box to grab ticker from user
 first_entry = tk.Entry(root, font=('Times', 26))
 first_entry.place(x=250, y=0)
 
@@ -359,8 +375,7 @@ currency_drop = tk.OptionMenu(root, clicked, *currency_options)
 currency_drop.config(height=2, width=6)
 currency_drop.place(x=585, y=0)
 
-# Go button for search bar
-search_bar_go_button = tk.Button(root, text='GO', command=lambda:create_ticker(), height = 2, width = 5)
+search_bar_go_button = tk.Button(root, text='GO', command=lambda: create_ticker(), height=2, width=5)
 search_bar_go_button.place(x=665, y=3)
 
 # Additional information text
@@ -374,7 +389,7 @@ dropdown_frame.place(x=1058, y=0)
 # Create an entry widget to display the selected options
 dropdown_entry_var = tk.StringVar()
 dropdown_entry_var.set("Select options...")
-dropdown_entry = tk.Entry(dropdown_frame, textvariable=dropdown_entry_var, width=14, font=('Times', 26))
+dropdown_entry = tk.Entry(dropdown_frame, textvariable=dropdown_entry_var, width=19, font=('Times', 26))
 dropdown_entry.pack()
 # Create a listbox widget to display the options when the dropdown is opened
 dropdown_visible = False
@@ -393,17 +408,14 @@ listbox.bind("<FocusOut>", lambda event: dropdown_entry.focus())
 listbox.bind("<Button-1>", lambda event: dropdown_entry.focus())
 listbox.bind("<ButtonRelease-1>", lambda event: update_selection)
 
-# Go button for additional info
 add_info_go_button = tk.Button(root, text='GO', command=update_selection, height=2, width=5)
-add_info_go_button.place(x='1315', y=3)
+add_info_go_button.place(x='1404', y=3)
 
-# Quit Button
 quit_button = tk.Button(root, text='Quit', command=root.quit, height=2, width=5)
-quit_button.place(x = 1480, y = 0)
+quit_button.place(x=1480, y=0)
 
 # Graph button
-graph_button = tk.Button(root, text='Graph', command=lambda:display_stock_graph(), height = 2, width = 5)
+graph_button = tk.Button(root, text='Day Graph', command=lambda: display_stock_graph(), height=2, width=7)
 graph_button.place(x=1, y=348)
 
-# Allows the user to view the window
 root.mainloop()
