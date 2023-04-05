@@ -114,8 +114,17 @@ def display_stock_graph():
     tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     current_day_data = ticker_data.history(start=current_day, end=tomorrow, interval='1m')
 
+    current_time = datetime.today().strftime('%H:%M:%S')
+
+    open_time = '9:30:00'
+    close_time = '16:00:00'
+
+    if open_time > current_time:
+        mess = tk.Label(root, text="Stock market is closed, try again later", font=('Times', 26))
+        mess.place(x=500, y=500)
+
     # shows data in intervals of 20 minutes
-    hours_data_20 = current_day_data.between_time('09:00:00', '16:00:00').resample('15T').last()
+    hours_data_20 = current_day_data.between_time(open_time, close_time).resample('15T').last()
 
     # convert to Eastern Time
     hours_data_20.index = hours_data_20.index.tz_convert('US/Eastern')
@@ -139,7 +148,7 @@ def display_stock_graph():
     _graph.tick_params(axis='x', labelsize=6)
     # plots graph and checks if the stock has gained value or lost
     graph_color = 'green'
-    if stock_prices[0] > stock_prices[len(stock_prices)-1]:
+    if stock_prices[0] > stock_prices[len(stock_prices) - 1]:
         graph_color = 'red'
     _graph.plot(stock_times, stock_prices, color=graph_color)
 
@@ -406,7 +415,7 @@ quit_button = tk.Button(root, text='Quit', command=root.quit, height=2, width=5)
 quit_button.place(x=1480, y=0)
 
 # Graph button
-graph_button = tk.Button(root, text='Graph', command=lambda: display_stock_graph(), height=2, width=5)
+graph_button = tk.Button(root, text='Day Graph', command=lambda: display_stock_graph(), height=2, width=7)
 graph_button.place(x=1, y=348)
 
 root.mainloop()
