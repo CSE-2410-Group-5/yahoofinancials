@@ -123,8 +123,16 @@ def display_stock_graph():
         mess = tk.Label(root, text="Stock market is closed, try again later", font=('Times', 26))
         mess.place(x=500, y=500)
 
-    # shows data in intervals of 20 minutes
-    hours_data_20 = current_day_data.between_time(open_time, close_time).resample('15T').last()
+    # Checks if a ticker is a cryptocurrency
+    time_interval = '15T'
+    info = ticker_data.info
+    quote_type = info.get('quoteType')
+
+    if quote_type == 'CRYPTOCURRENCY':
+        time_interval = '1H'
+        open_time = '0:01:00'
+        close_time = '23:59:00'
+    hours_data_20 = current_day_data.between_time(open_time, close_time).resample(time_interval).last()
 
     # convert to Eastern Time
     hours_data_20.index = hours_data_20.index.tz_convert('US/Eastern')
