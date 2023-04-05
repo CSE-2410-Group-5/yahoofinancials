@@ -131,6 +131,7 @@ def display_stock_graph():
 
     if quote_type == 'CRYPTOCURRENCY':
         time_interval = '1H'
+        open_time = '0:01:00'
         close_time = '23:59:00'
     hours_data_20 = current_day_data.between_time(open_time, close_time).resample(time_interval).last()
 
