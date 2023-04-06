@@ -219,7 +219,7 @@ def update_selection():
                 temp = '--'
             text += '5 Year Average Dividend Yield: {}\n'.format(temp) + (' ' * 58)
 
-        if selected == '10-day Current Volume':
+        elif selected == '10-day Current Volume':
             temp = '{:,}'.format(tick.get_ten_day_avg_daily_volume())
             if temp is None:
                 temp = '--'
@@ -324,7 +324,6 @@ def update_selection():
 
     text2 = scrolledtext.ScrolledText(root, wrap='word', font=('Times', 18))
     text2.insert('insert', text)
-    # y was 46
     text2.place(x=720, y=46, width=380, height=300)
     root.update()
 
@@ -344,24 +343,14 @@ currency_options = [
 ]
 
 additional_info = [
-    "5 Year Avg. Div. Yield",
-    "10-day Current Volume",
-    "50 Day Moving Avg.",
-    "200 Day Moving Avg.",
-    "Annual Avg. Div. Rate",
-    "Annual Avg. Div. Yield",
-    "Beta",
-    "Dividend Rate",
-    "Dividend Yield",
-    "Earnings Per Share",
-    "Ex-Dividend Date",
-    "Market Cap",
-    "Payout Ratio",
-    "Price To Sales Trail 1 Yr",
-    "Shares Outstanding",
-    "Trailing PE",
-    "Yearly High",
-    "Yearly Low"
+    "5 Year Avg. Div. Yield", "10-day Current Volume",
+    "50 Day Moving Avg.", "200 Day Moving Avg.",
+    "Annual Avg. Div. Rate", "Annual Avg. Div. Yield",
+    "Beta", "Dividend Rate", "Dividend Yield",
+    "Earnings Per Share", "Ex-Dividend Date",
+    "Market Cap", "Payout Ratio",
+    "Price To Sales Trail 1 Yr", "Shares Outstanding",
+    "Trailing PE", "Yearly High", "Yearly Low"
 ]
 
 # BEGIN TKINTER BUILD
