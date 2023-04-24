@@ -107,75 +107,75 @@ def create_ticker():
 
 
 def display_stock_graph():
-    # makes the ticker object
-    ticker_data = yfinance.Ticker(DEFAULT_ARGS)
+    try:
+        # makes the ticker object
+        ticker_data = yfinance.Ticker(DEFAULT_ARGS)
 
-    # creates the boundary to extract data from
-    current_day = datetime.now().strftime('%Y-%m-%d')
-    tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
-    current_day_data = ticker_data.history(start=current_day, end=tomorrow, interval='1m')
+        # creates the boundary to extract data from
+        current_day = datetime.now().strftime('%Y-%m-%d')
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+        current_day_data = ticker_data.history(start=current_day, end=tomorrow, interval='1m')
 
-    current_time = datetime.today().strftime('%H:%M:%S')
+        current_time = datetime.today().strftime('%H:%M:%S')
 
-    open_time = '9:30:00'
-    close_time = '16:00:00'
+        open_time = '9:30:00'
+        close_time = '16:00:00'
 
-    if open_time > current_time:
-        mess = tk.Label(root, text="Stock market is closed, try again later", font=('Times', 26))
-        mess.place(x=500, y=500)
+        # Checks if a ticker is a cryptocurrency
+        time_interval = '15T'
+        info = ticker_data.info
+        quote_type = info.get('quoteType')
 
-    # Checks if a ticker is a cryptocurrency
-    time_interval = '15T'
-    info = ticker_data.info
-    quote_type = info.get('quoteType')
+        if quote_type == 'CRYPTOCURRENCY':
+            time_interval = '1H'
+            open_time = '0:01:00'
+            close_time = '23:59:00'
+        hours_data_20 = current_day_data.between_time(open_time, close_time).resample(time_interval).last()
 
-    if quote_type == 'CRYPTOCURRENCY':
-        time_interval = '1H'
-        open_time = '0:01:00'
-        close_time = '23:59:00'
-    hours_data_20 = current_day_data.between_time(open_time, close_time).resample(time_interval).last()
+        # convert to Eastern Time
+        hours_data_20.index = hours_data_20.index.tz_convert('US/Eastern')
+        eastern_time = pytz.timezone('US/Eastern')
+        hours_data_20.index = hours_data_20.index.tz_convert(eastern_time)
 
-    # convert to Eastern Time
-    hours_data_20.index = hours_data_20.index.tz_convert('US/Eastern')
-    eastern_time = pytz.timezone('US/Eastern')
-    hours_data_20.index = hours_data_20.index.tz_convert(eastern_time)
+        # Create empty lists to store the time and price
+        stock_times = []
+        stock_prices = []
 
-    # Create empty lists to store the time and price
-    stock_times = []
-    stock_prices = []
+        # puts the items in their own list
+        for hour, price in zip(hours_data_20.index, hours_data_20['Close']):
+            time = hour.strftime('%I:%M %p')
+            stock_times.append(time)
+            stock_prices.append(price)
 
-    # puts the items in their own list
-    for hour, price in zip(hours_data_20.index, hours_data_20['Close']):
-        time = hour.strftime('%I:%M %p')
-        stock_times.append(time)
-        stock_prices.append(price)
+        # Create a figure and add a subplot
+        fig = Figure(figsize=(16, 3.95), dpi=100)
+        _graph = fig.add_subplot(111)
 
-    # Create a figure and add a subplot
-    fig = Figure(figsize=(16, 3.95), dpi=100)
-    _graph = fig.add_subplot(111)
+        _graph.tick_params(axis='x', labelsize=6)
+        # plots graph and checks if the stock has gained value or lost
+        graph_color = 'green'
+        if stock_prices[0] > stock_prices[len(stock_prices) - 1]:
+            graph_color = 'red'
+        _graph.plot(stock_times, stock_prices, color=graph_color)
 
-    _graph.tick_params(axis='x', labelsize=6)
-    # plots graph and checks if the stock has gained value or lost
-    graph_color = 'green'
-    if stock_prices[0] > stock_prices[len(stock_prices)-1]:
-        graph_color = 'red'
-    _graph.plot(stock_times, stock_prices, color=graph_color)
+        # gets the current day
+        fin_current_day = datetime.now().strftime('(%m-%d)')
 
-    # gets the current day
-    fin_current_day = datetime.now().strftime('(%m-%d)')
+        # Labels the graph
+        _title = DEFAULT_ARGS.upper() + "'s Daily Prices " + fin_current_day
+        _graph.set_title(_title)
+        _graph.set_xlabel("Time(AM-PM)")
+        _graph.set_ylabel("Stock Price($)")
 
-    # Labels the graph
-    _title = DEFAULT_ARGS.upper() + "'s Daily Prices " + fin_current_day
-    _graph.set_title(_title)
-    _graph.set_xlabel("Time(AM-PM)")
-    _graph.set_ylabel("Stock Price($)")
+        # Create a canvas to display the graph in Tkinter
+        canvas = FigureCanvasTkAgg(fig, master=root)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=0, y=390)
 
-    # Create a canvas to display the graph in Tkinter
-    canvas = FigureCanvasTkAgg(fig, master=root)
-    canvas.draw()
-    canvas.get_tk_widget().place(x=0, y=390)
-
-    # end of this method
+    except TypeError as e:
+        if str(e) == "Index must be DatetimeIndex":
+            mess = tk.Label(root, text="Stock market is closed, try again later", font=('Times', 26))
+            mess.place(x=500, y=500)
 
 
 def is_valid_ticker(symbol):
